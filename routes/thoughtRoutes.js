@@ -23,28 +23,21 @@ router.get ('/:id', getThought, (req,res)=> {
 router.post('/', async (req,res) => {
     const thought = new Thought({
         // add in all the fields I need to create
+        thoughtText: req.body.thoughtText,
+        username: req.body.username,
     })
     try {
         const newThought = await thought.save() 
             // add in all the fields I need to create
-    
+            await User.findByIdAndUpdate(req.body.userId, { $push: { thoughts: newThought._id } });
+
         res.status(201).json(newThought)
     } catch (err){
         res.status(400).json({message: err.message})
     }
 })
 
-// // example data
-// {
-//   "thoughtText": "Here's a cool thought...",
-//   "username": "lernantino",
-//   "userId": "5edff358a0fcb779aa7b118b"
-// }
-// PUT to update a thought by its _id
 router.patch ('/:id', getThought, async (req,res) =>{
-    if (req.body.reactionId ===! null){
-        res.thought.reactionId = req.body.reactionId
-    }
     if (req.body.thoughtText ===! null){
         res.thought.thoughtText = req.body.thoughtText
     }
@@ -68,10 +61,43 @@ router.delete ('/:id', getThought, async (req,res) =>{
 })
 
 // /api/thoughts/:thoughtId/reactions
-
 // POST to create a reaction stored in a single thought's reactions array field
+router.post('/:thoughtId/reactions', async (req, res) => {
+    try {
+        const thought = await Thought.findById(req.params.thoughtId);
+        if (!thought) {
+            return res.status(404).json({ message: "Thought not found." });
+        }
+
+        const newReaction = {
+            reactionBody: req.body.reactionBody,
+            username: req.body.username,
+        };
+
+        thought.reactions.push(newReaction);
+        await thought.save();
+        res.status(201).json(newReaction);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
 
 // DELETE to pull and remove a reaction by the reaction's reactionId value
+router.delete('/:thoughtId/reactions/:reactionId', async (req, res) => {
+    try {
+        const thought = await Thought.findById(req.params.thoughtId);
+        if (!thought) {
+            return res.status(404).json({ message: "Thought not found." });
+        }
+
+        // Remove the reaction by reactionId
+        thought.reactions = thought.reactions.filter(reaction => reaction._id.toString() !== req.params.reactionId);
+        await thought.save();
+        res.json({ message: 'Reaction removed' });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
 
 async function getThought (req,res,next) {
 try {
