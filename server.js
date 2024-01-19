@@ -15,8 +15,8 @@ db.once('open', () => console.log('Connected to Database'))
 const userRoutes = require('./routes/userRoutes');
 const thoughtRoutes = require('./routes/thoughtRoutes');
 
-app.use ('/user');
-app.use ('/thought');
+app.use ('/user', userRoutes);
+app.use ('/thought', thoughtRoutes);
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
