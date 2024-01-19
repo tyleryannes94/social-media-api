@@ -1,8 +1,25 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const userRoutes = require('./routes/userRoutes');
-const thoughtRoutes = require('./routes/thoughtRoutes');
+const app = express();
 require('dotenv').config();
 
-const app = express();
+const PORT = process.env.PORT || 3001;
+
 app.use(express.json());
+
+mongoose.connect(process.env.DATABASE_URL, {useNewUrlParser: true,useUnifiedTopology: true});
+const db = mongoose.connection;
+db.on('error', (error) => console.error(error));
+db.once('open', () => console.log('Connected to Database'))
+
+const userRoutes = require('./routes/userRoutes');
+const thoughtRoutes = require('./routes/thoughtRoutes');
+
+app.use ('/user');
+app.use ('/thought');
+
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+
+
+
