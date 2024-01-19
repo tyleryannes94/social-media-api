@@ -1,44 +1,20 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
 const thoughtSchema = new Schema({
     thoughtText: {
       type: String,
       required: true,
-      trim: true // change this to "Must be between 1 and 280 characters "
-    },
+      minlength:1,
+    maxlength:180    },
     createdAt: {
       type: Date,
       //Set default value to the current timestamp
+      default:Date.now,
      //Use a getter method to format the timestamp on query
+     get: timestamp => timestamp.toISOString()
     },
-    username: [
-      {
-        type: String,
-        required: true }
-    ],
-    reactions: [
-      {
-        type: Array,
-        reactionId
-
-        // Use Mongoose's ObjectId data type
-        // Default value is set to a new ObjectId
-        // reactionBody
-        
-        // String
-        // Required
-        // 280 character maximum
-        // username
-        
-        // String
-        // Required
-        // createdAt
-        
-        // Date
-        // Set default value to the current timestamp
-        // Use a getter method to format the timestamp on query
-      }
-    ]
+    username: [reactionSchema]
   }, {
     toJSON: {
       virtuals: true
@@ -51,6 +27,6 @@ const thoughtSchema = new Schema({
   });
   
 
-const User = mongoose.model('User', thoughtSchema);
+const Thought = mongoose.model('Thought', thoughtSchema);
 
-module.exports = User;
+module.exports = Thought;
