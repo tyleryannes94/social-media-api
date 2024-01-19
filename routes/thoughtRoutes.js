@@ -1,12 +1,34 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/Thought');
+const Thought = require('../models/Thought');
 
 // GET to get all thoughts
+router.get('/', async (req,res) => {
+    try {
+        const thoughts = await Thought.find()
+        res.json(thoughts)
+    } catch (err){
+        res.status(500).json({message: err.message})
+    }
+})
 
 // GET to get a single thought by its _id
 
+
 // POST to create a new thought (don't forget to push the created thought's _id to the associated user's thoughts array field)
+router.post('/', async (req,res) => {
+    const thoughts = new Thought({
+        // add in all the fields I need to create
+    })
+    try {
+        const newThought = await thoughts.save() 
+            // add in all the fields I need to create
+    
+        res.status(201).json(newThought)
+    } catch (err){
+        res.status(400).json({message: err.message})
+    }
+})
 
 // // example data
 // {
