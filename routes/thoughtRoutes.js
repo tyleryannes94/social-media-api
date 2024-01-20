@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Thought = require('../models/Thought');
+const User = require('../models/User');
 
 // GET to get all thoughts
 router.get('/', async (req,res) => {
@@ -38,11 +39,14 @@ router.post('/', async (req,res) => {
 })
 
 router.patch ('/:id', getThought, async (req,res) =>{
-    if (req.body.thoughtText ===! null){
+    if (req.body.thoughtText != null) {
         res.thought.thoughtText = req.body.thoughtText
     }
+    if (req.body.username != null) {
+        res.thought.username = req.body.username;
+    }
     try {
-        const updatedThought = await res.though.save()
+        const updatedThought = await res.thought.save();
         res.json(updatedThought)
     }
     catch (err){
