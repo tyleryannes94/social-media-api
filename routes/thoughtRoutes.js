@@ -55,14 +55,17 @@ router.patch ('/:id', getThought, async (req,res) =>{
 })
 
 // DELETE to remove a thought by its _id
-router.delete ('/:id', getThought, async (req,res) =>{
+router.delete('/:id', async (req, res) => {
     try {
-        await res.thought.remove()
-        res.json({message: 'Thought deleted!'});
-    }catch (err) {
-        res.status(500).json({message: err.message})
+        const thought = await Thought.findByIdAndDelete(req.params.id);
+        if (!thought) {
+            return res.status(404).json({ message: 'Thought not found' });
+        }
+        res.json({ message: 'Thought deleted!' });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
-})
+});
 
 // /api/thoughts/:thoughtId/reactions
 // POST to create a reaction stored in a single thought's reactions array field
@@ -103,17 +106,17 @@ router.delete('/:thoughtId/reactions/:reactionId', async (req, res) => {
     }
 });
 
-async function getThought (req,res,next) {
-try {
-    thought = await Thought.findById(req.params.id)
-    if (thought == null){
-        return res.status(404).json ({message: 'Cannot find thought.'})
+async function getThought(req, res, next) {
+    let thought;
+    try {
+        thought = await Thought.findById(req.params.id);
+        if (!thought) {
+            return res.status(404).json({ message: 'Cannot find thought.' });
+        }
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
     }
-} catch (err){
-    return res.status(500).json({message: err.message})
+    res.thought = thought;
+    next();
 }
-res.thought = thought
-next()
-}
-
 module.exports = router;
