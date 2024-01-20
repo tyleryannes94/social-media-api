@@ -50,10 +50,14 @@ router.put('/:id', getUser, async (req, res) => {
 });
 
 // DELETE to remove user by its _id
-router.delete('/:id', getUser, async (req, res) => {
+router.delete('/:id', async (req, res) => {
     try {
-        await Thought.deleteMany({ username: res.user.username });
-        await res.user.remove();
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        await Thought.deleteMany({ username: user.username });
+        await User.findByIdAndDelete(req.params.id);
         res.json({ message: 'User deleted' });
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -96,17 +100,16 @@ router.delete('/:userId/friends/:friendId', async (req, res) => {
 
 // getUser middleware
 async function getUser(req, res, next) {
-    let user;
     try {
-        user = await User.findById(req.params.id).populate('thoughts').populate('friends');
+        let user = await User.findById(req.params.id);
         if (user == null) {
             return res.status(404).json({ message: 'Cannot find user.' });
         }
+        res.user = user;
+        next();
     } catch (err) {
-        return res.status(500).json({ message: err.message });
+        res.status(500).json({ message: err.message });
     }
-    res.user = user;
-    next();
 }
 
 module.exports = router;
